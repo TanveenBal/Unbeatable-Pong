@@ -1,0 +1,7 @@
+# ninja log v5
+4	326	7370051088219302	CMakeFiles/Unbeatable_Pong.dir/main.cpp.obj	ac5283cba5039a
+2	385	7370259347542220	build.ninja	8d34fa4c3d36cd56
+5	325	7370116712618476	CMakeFiles/Unbeatable_Pong.dir/GameEntities.cpp.obj	fa9181f80f7658bf
+434	629	7370254851526415	Unbeatable_Pong.exe	97d74a18d9e8cf00
+4	317	7370098583815653	CMakeFiles/Unbeatable_Pong.dir/pong.cpp.obj	89b054544fed64c0
+7	434	7370254849600900	CMakeFiles/Unbeatable_Pong.dir/Pong.cpp.obj	3c8e909bb4fd9cef
