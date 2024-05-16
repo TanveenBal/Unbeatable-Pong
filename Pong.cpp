@@ -3,14 +3,6 @@
 #include "src/raylib.h"
 using namespace std;
 
-Ball ball((float)WIDTH / 2, (float)HEIGHT / 2, 5, 5, 15);
-Paddle paddle(10.0, (float)HEIGHT / 2 - 50, 10.0, 100.0);
-CPU_Paddle cpuPaddle(980.0, (float)HEIGHT / 2 - 50, 10.0, 100.0);
-Stats stats;
-Button start_button({(float)(WIDTH - BUTTON_WIDTH) / 2, (float)(HEIGHT - BUTTON_HEIGHT) / 2, (float)BUTTON_WIDTH, (float)BUTTON_HEIGHT},
-                   GRAY, BLACK, "Start");
-Button settings_button({(float)(WIDTH - BUTTON_WIDTH) / 2, (float)(HEIGHT - BUTTON_HEIGHT) / 2 + 100, (float)BUTTON_WIDTH, (float)BUTTON_HEIGHT},
-                      GRAY, BLACK, "Settings");
 
 void initialize_window(){
     InitWindow(WIDTH, HEIGHT, "Pong");
@@ -35,71 +27,81 @@ void close_window(){
 
 void draw_game(Color Ball_Color){
     BeginDrawing();
-    ClearBackground(BLACK);
-    for (int life = 3; life > stats.computer_score; life--) {
-        float xPos = (float)-life * 30 + 655;
+    ClearBackground(Dark_Blue);
+    DrawRectangle(WIDTH / 2, 0, WIDTH/2, HEIGHT, Blue);
+    DrawCircle(WIDTH / 2, HEIGHT / 2, 150, Light_Blue);
+    for (int life = stats.lives; life > 0; life--) {
+        float xPos = (float)life * 50 + 520;
         float yPos = 2.5;
         DrawTexturePro(Heart,
-                       (Rectangle){30, 0, (float)Heart.width, (float)Heart.height},
-                       (Rectangle){xPos, yPos, 30.0, 30.0},
+                       (Rectangle){0, 0, (float)Heart.width, (float)Heart.height},
+                       (Rectangle){xPos, yPos, 50.0, 50.0},
                        (Vector2){0, 0}, 0.0, WHITE);
     }
-    DrawText(TextFormat("Lives Remaining:"), 325, 0, 30, BLUE);
+    DrawText(TextFormat("Lives Remaining:"), 325, 15, 30, BLACK);
     DrawText(TextFormat("Rally Score: %d", stats.rally), 380, 550, 30, YELLOW);
     ball.draw(Ball_Color);
-    paddle.draw(BLUE);
-    cpuPaddle.draw(RED);
+    paddle.draw();
+    cpuPaddle.draw();
     DrawFPS(925, 0);
     EndDrawing();
 }
 
-void draw_start_screen(){
+void draw_main_menu_screen() {
     BeginDrawing();
+    ClearBackground(Dark_Blue);
     start_button.draw();
-    if (start_button.isPressed()) {
-        start = false;
-    }
     settings_button.draw();
-    if (settings_button.isPressed()) {
-        settings = true;
-    }
+    if (start_button.isPressed()) {main_menu = false; start_button.reset();}
+    if (settings_button.isPressed()) {main_menu = false; settings = true; settings_button.reset();}
+    EndDrawing();
+}
+
+void draw_settings_screen(){
+    BeginDrawing();
+    ClearBackground(Dark_Blue);
+    set_speed_button.draw();
+    speed_box.draw();
+    speed_box.Update();
+    exit_settings.draw();
+    DrawText(TextFormat("Speed Increase Rate = %f", stats.speed), 280, 0, 30, BLACK);
+    if (set_speed_button.isPressed()) {stats.speed = atof(speed_box.getText()); set_speed_button.reset();}
+    if (exit_settings.isPressed()) {settings = false; main_menu = true; exit_settings.reset();}
     EndDrawing();
 }
 
 void draw_end_screen(){
     BeginDrawing();
-    if (play_sound_once){
-        PlaySound(lost_game);
-        play_sound_once = false;
-    }
-    ClearBackground(BLACK);
+    ClearBackground(Dark_Blue);
+    if (play_sound_once) {PlaySound(lost_game); play_sound_once = false;}
+
     EndDrawing();
 }
 
 void ball_pos(){
     if (paddle.collided(ball.position, ball.radius) || cpuPaddle.collided(ball.position, ball.radius)){
-        ball.speed_x *= -SPEED; //increase speed
-        ball.speed_y *= SPEED; //increase speed
+        ball.speed_x *= -stats.speed; //increase speed
+        ball.speed_y *= stats.speed; //increase speed
         stats.rally += 1;
-        if (paddle.collided(ball.position, ball.radius)){
+        if (paddle.collided(ball.position, ball.radius)) {
             PlaySound(paddle_hard_hit);
-        }else{
+        } else {
             PlaySound(paddle_hit);
         }
-    }else if (ball.position.x + ball.radius >= WIDTH - cpuPaddle.size.x + 10 || ball.position.x - ball.radius <= 0 + paddle.size.x + 10){
-        ball.reset((float) WIDTH / 2, (float) HEIGHT / 2, ball.speed_x *= -SPEED, ball.speed_y *= -SPEED);
-        draw_game(YELLOW);
+    }else if (ball.position.x + ball.radius >= WIDTH - cpuPaddle.size.x + 10 || ball.position.x - ball.radius <= 0 + paddle.size.x + 10) {
+        ball.reset((float) WIDTH / 2, (float) HEIGHT / 2, ball.speed_x *= -stats.speed, ball.speed_y *= -stats.speed);
+        draw_game(RED);
         ball.speed_x = 5;
         ball.speed_y = 5;
-        if (ball.position.x + ball.radius >= WIDTH - cpuPaddle.size.x + 10){stats.player_score += 1;}
+        if (ball.position.x + ball.radius >= WIDTH - cpuPaddle.size.x + 10) {stats.player_score += 1;}
         else{stats.computer_score += 1;}
         PlaySound(lost_heart);
         WaitTime(.25);
-        if (stats.rally >= stats.highest_rally){stats.highest_rally = stats.rally;}
+        if (stats.rally >= stats.highest_rally) {stats.highest_rally = stats.rally;}
         stats.lives -= 1;
         stats.rally = 0;
     }
-    if (ball.position.y + ball.radius >= HEIGHT || ball.position.y - ball.radius <= 0){
+    if (ball.position.y + ball.radius >= HEIGHT || ball.position.y - ball.radius <= 0) {
         ball.speed_y *= -1;
     }
     ball.move();
@@ -113,16 +115,17 @@ void key_inputs(){
 
 void run(){
     initialize_window();
-    while (!WindowShouldClose()){
-        if (start){
-            draw_start_screen();
-        }
-        else if (stats.lives == 0){
+    while (!WindowShouldClose()) {
+        if (main_menu) {
+            draw_main_menu_screen();
+        } else if (settings) {
+            draw_settings_screen();
+        } else if (stats.lives == 0) {
             draw_end_screen();
-        } else {
+        } else if (!main_menu && !settings){
             ball_pos();
             key_inputs();
-            draw_game(WHITE);
+            draw_game(Yellow);
         }
 
     }

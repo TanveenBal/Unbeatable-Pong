@@ -1,7 +1,8 @@
 #include "src/raylib.h"
+using namespace std;
 
 #ifndef UNBEATABLE_PONG_PONG_H
-bool start = true;
+bool main_menu = true;
 bool settings = false;
 bool play_sound_once = true;
 const int WIDTH = 1000;
@@ -9,12 +10,17 @@ const int HEIGHT = 600;
 const int BUTTON_HEIGHT = 50;
 const int BUTTON_WIDTH = 400;
 const int FPS = 60;
-float SPEED = 1.1;
 Sound lost_heart;
 Sound lost_game;
 Sound paddle_hard_hit;
 Sound paddle_hit;
 Texture2D Heart;
+
+Color Blue = Color{38, 154, 185, 255};
+Color Dark_Blue = Color{20, 133, 160, 255};
+Color Light_Blue = Color{129, 184, 204, 150};
+Color Yellow = Color{243, 213, 91, 255};
+
 
 struct Stats {
     int rally = 0;
@@ -22,6 +28,7 @@ struct Stats {
     int player_score = 0;
     int computer_score = 0;
     int lives = 3;
+    float speed = 1.1;
 };
 
 class Ball {
@@ -54,12 +61,13 @@ class Paddle {
 public:
     Vector2 position;
     Vector2 size;
+    Color color;
 
-    Paddle(const float & X, const float & Y, const float & width, const float & height)
-            : position({X, Y}), size({width, height}) {}
+    Paddle(const float & X, const float & Y, const float & width, const float & height, const Color & color)
+            : position({X, Y}), size({width, height}), color(color) {}
 
-    void draw(const Color & color) const {
-        DrawRectangleV(position, size, color);
+    void draw() const {
+        DrawRectangleRounded(Rectangle{position.x, position.y, size.x, size.y}, 0.8, 0, color);
     }
 
     void limit_movement() {
@@ -82,7 +90,7 @@ public:
 
 class CPU_Paddle: public Paddle{
 public:
-    CPU_Paddle(const float & X, const float & Y, const float & width, const float & height) : Paddle(X, Y, width, height) {}
+    CPU_Paddle(const float & X, const float & Y, const float & width, const float & height, const Color & color) : Paddle(X, Y, width, height, color) {}
 
     void update(const Vector2 & ballPos, const float & ballSpeedY){
         if (ballPos.x >= 650){
@@ -112,7 +120,7 @@ private:
     bool pressed;
 
 public:
-    Button(Rectangle bounds, Color color, Color textColor, std::string text)
+    Button(const Rectangle & bounds, const Color & color, const Color & textColor, const string & text)
             : bounds(bounds), color(color), textColor(textColor), text(text), pressed(false) {}
 
     void draw() {
@@ -130,14 +138,81 @@ public:
         }
     }
 
-    bool isPressed() const {
-        return pressed;
+    bool isPressed() const {return pressed;}
+
+    void reset() {pressed = false;}
+};
+
+
+class TextBox {
+private:
+    Rectangle box;
+    char* text;
+    int maxChars;
+    int letterCount;
+    int framesCounter;
+    bool active;
+
+public:
+    TextBox(const float & x, const float & y, const float & width, const float & height, const int & maxChars) : box({x, y, width, height}), maxChars(maxChars), letterCount(0), framesCounter(0), active(false)
+    {text = new char[maxChars + 1]();}
+
+    void Update() {
+        if (CheckCollisionPointRec(GetMousePosition(), box)) {
+            active = true;
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+        } else {
+            active = false;
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+        }
+
+        if (active) {
+            int key = GetCharPressed();
+            while (key > 0) {
+                if (key >= 32 && key <= 125 && letterCount < maxChars) {
+                    text[letterCount] = (char)key;
+                    text[++letterCount] = '\0';
+                }
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE)) {
+                letterCount--;
+                if (letterCount < 0) letterCount = 0;
+                text[letterCount] = '\0';
+            }
+        }
     }
 
-    void reset() {
-        pressed = false;
+    void draw() const {
+        DrawRectangleRec(box, active ? Light_Blue : Blue);
+        DrawRectangleLinesEx(box, 1, active ? Yellow : Light_Blue);
+        DrawText(text, (int)box.x + 5, (int)box.y + 8, 20, Yellow);
+
+        if (active && letterCount < maxChars && (framesCounter / 20) % 2 == 0) {
+            DrawText("_", (int)box.x + 5 + MeasureText(text, 20), (int)box.y + 8, 20, MAROON);
+        }
     }
+
+    const char* getText() const {return text;}
+
+    ~TextBox() {delete[] text;}
 };
+
+Ball ball((float)WIDTH / 2, (float)HEIGHT / 2, 5, 5, 15);
+Paddle paddle(10.0, (float)HEIGHT / 2 - 50, 20.0, 100.0, WHITE);
+CPU_Paddle cpuPaddle(970.0, (float)HEIGHT / 2 - 50, 20.0, 100.0, WHITE);
+Stats stats;
+Button start_button({(float)(WIDTH - BUTTON_WIDTH) / 2, (float)(HEIGHT - BUTTON_HEIGHT) / 2, (float)BUTTON_WIDTH, (float)BUTTON_HEIGHT},
+                    Light_Blue, BLACK, "Start");
+Button settings_button({(float)(WIDTH - BUTTON_WIDTH) / 2, (float)(HEIGHT - BUTTON_HEIGHT) / 2 + 100, (float)BUTTON_WIDTH, (float)BUTTON_HEIGHT},
+                       Light_Blue, BLACK, "Settings");
+Button set_speed_button({(float)(WIDTH - BUTTON_WIDTH) / 2, (float)(HEIGHT - BUTTON_HEIGHT) / 2 + 100, (float)BUTTON_WIDTH, (float)BUTTON_HEIGHT},
+                       Light_Blue, RED, "Confirm");
+Button exit_settings({(float)(WIDTH - BUTTON_WIDTH) / 2, (float)(HEIGHT - BUTTON_HEIGHT) / 2 + 200, (float)BUTTON_WIDTH, (float)BUTTON_HEIGHT},
+                     Light_Blue, BLACK, "Exit");
+TextBox speed_box((float)(WIDTH - BUTTON_WIDTH) / 2, (float)(HEIGHT - BUTTON_HEIGHT) / 2, (float)BUTTON_WIDTH, (float)BUTTON_HEIGHT, 10);
+
 
 #define UNBEATABLE_PONG_PONG_H
 

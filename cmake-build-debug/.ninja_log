@@ -1,7 +1,13 @@
 # ninja log v5
-4	326	7370051088219302	CMakeFiles/Unbeatable_Pong.dir/main.cpp.obj	ac5283cba5039a
 2	385	7370259347542220	build.ninja	8d34fa4c3d36cd56
+4	326	7370051088219302	CMakeFiles/Unbeatable_Pong.dir/main.cpp.obj	ac5283cba5039a
+378	541	7372705320219423	Unbeatable_Pong.exe	97d74a18d9e8cf00
 5	325	7370116712618476	CMakeFiles/Unbeatable_Pong.dir/GameEntities.cpp.obj	fa9181f80f7658bf
-434	629	7370254851526415	Unbeatable_Pong.exe	97d74a18d9e8cf00
 4	317	7370098583815653	CMakeFiles/Unbeatable_Pong.dir/pong.cpp.obj	89b054544fed64c0
-7	434	7370254849600900	CMakeFiles/Unbeatable_Pong.dir/Pong.cpp.obj	3c8e909bb4fd9cef
+20	378	7372705318644351	CMakeFiles/Unbeatable_Pong.dir/Pong.cpp.obj	3c8e909bb4fd9cef
+8	412	7372708324740075	CMakeFiles/Unbeatable_Pong.dir/Pong.cpp.obj	3c8e909bb4fd9cef
+412	591	7372708326445331	Unbeatable_Pong.exe	97d74a18d9e8cf00
+14	402	7372708828384180	CMakeFiles/Unbeatable_Pong.dir/Pong.cpp.obj	3c8e909bb4fd9cef
+402	570	7372708830019445	Unbeatable_Pong.exe	97d74a18d9e8cf00
+5	393	7372710476597279	CMakeFiles/Unbeatable_Pong.dir/Pong.cpp.obj	3c8e909bb4fd9cef
+394	611	7372710478674489	Unbeatable_Pong.exe	97d74a18d9e8cf00
