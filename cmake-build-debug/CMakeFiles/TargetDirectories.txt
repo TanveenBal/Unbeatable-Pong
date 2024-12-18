@@ -1,3 +1,0 @@
-C:/Users/ignit/CLionProjects/Unbeatable_Pong/cmake-build-debug/CMakeFiles/Unbeatable_Pong.dir
-C:/Users/ignit/CLionProjects/Unbeatable_Pong/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/ignit/CLionProjects/Unbeatable_Pong/cmake-build-debug/CMakeFiles/rebuild_cache.dir
