@@ -1,3 +1,0 @@
-C:/Users/ignit/Projects/C++/Unbeatable Pong/build/CMakeFiles/Unbeatable_Pong.dir
-C:/Users/ignit/Projects/C++/Unbeatable Pong/build/CMakeFiles/edit_cache.dir
-C:/Users/ignit/Projects/C++/Unbeatable Pong/build/CMakeFiles/rebuild_cache.dir
